@@ -9,6 +9,7 @@ namespace Appointment.DAC
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Models.Domain.Appointment> Appointments { get; set; }
 
+        public virtual DbSet<Models.Domain.AppointmentStatus> AppointmentStatuses { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Initial Catalog=Appointment;Persist Security Info=False;User ID=sa2;Password=12345qwert;MultipleActiveResultSets=False");
@@ -18,6 +19,7 @@ namespace Appointment.DAC
         {
             ConfigureUsers(modelBuilder);
             ConfigureAppointments(modelBuilder);
+            ConfigureAppointmentStatuses(modelBuilder);
         }
 
         private static void ConfigureUsers(ModelBuilder modelBuilder)
@@ -57,6 +59,16 @@ namespace Appointment.DAC
                       .WithMany(s => s.Appointments)
                       .HasForeignKey(a => a.AppointmentStatusId)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+        }
+
+        private static void ConfigureAppointmentStatuses(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<AppointmentStatus>(entity =>
+            {
+                entity.ToTable("AppointmentStatus");
+                entity.HasKey(c => c.AppointmentStatusId);
+                entity.Property(c => c.AppointmentStatusName).IsRequired().HasMaxLength(100);
             });
         }
     }

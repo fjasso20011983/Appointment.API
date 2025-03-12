@@ -13,10 +13,12 @@ namespace Appointment.API.Controllers
     public class AppointmentController : ApiBaseController
     {
         private readonly IAppointmentService _appointmentService;
+        private readonly IAppointmentStatusService _appointmentStatusService;
 
-        public AppointmentController(IAppointmentService appointmentService)
+        public AppointmentController(IAppointmentService appointmentService, IAppointmentStatusService appointmentStatusService)
         {
             this._appointmentService = appointmentService;
+            this._appointmentStatusService = appointmentStatusService;
         }
 
         [HttpGet]
@@ -75,6 +77,19 @@ namespace Appointment.API.Controllers
         {
             await _appointmentService.DeleteAppointmentAsync(appointmentId);
             return NoContent();
+        }
+
+        [HttpGet]
+        [Route("status")]
+        [EnableCors("AllowSpecificOrigins")]
+        public async Task<IActionResult> GetAppointmentStatus()
+        {
+            var appointmentStatus = await _appointmentStatusService.GetAllAppointmentStatusesAsync();
+            if (appointmentStatus == null)
+            {
+                return NotFound();
+            }
+            return Ok(appointmentStatus);
         }
     }
 }

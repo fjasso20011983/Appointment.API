@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Appointment.BizLogic.Appointment;
+using Appointment.BizLogic.AppointmentStatus;
 using Appointment.BizLogic.User;
 using Appointment.BizLogic.utils;
 using Appointment.DAC;
@@ -49,6 +50,8 @@ namespace Appointment.API
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IAppointmentService, AppointmentService>();
             services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+            services.AddScoped<IAppointmentStatusService, AppointmentStatusService>();
+            services.AddScoped<IAppointmentStatusRepository, AppointmentStatusRepository>();
 
             services.AddAutoMapper(typeof(MappingProfile));
         }
