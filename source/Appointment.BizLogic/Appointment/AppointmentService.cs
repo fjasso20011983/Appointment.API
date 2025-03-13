@@ -12,11 +12,13 @@ namespace Appointment.BizLogic.Appointment
     {
         private readonly IAppointmentRepository _appointmentRepository;
         private readonly IMapper _mapper;
+        private List<string> _invalidUpdateDeleteStatus; 
 
         public AppointmentService(IAppointmentRepository appointmentRepository, IMapper mapper)
         {
             this._appointmentRepository = appointmentRepository;
             this._mapper = mapper;
+            _invalidUpdateDeleteStatus = new List<string> { "Approved", "Cancelled" };
         }
 
         public async Task<AppointmentDTO> GetAppointmentAsync(int appointmentId)
@@ -53,7 +55,7 @@ namespace Appointment.BizLogic.Appointment
             if(oldAppointment == null)
             {
                 return (false, "Invalid AppointmentId");
-            }
+            }            
 
             _mapper.Map<AppointmentDTO, Models.Domain.Appointment>(appointmentDto, oldAppointment);
             await _appointmentRepository.UpdateAppointmentAsync(oldAppointment);
@@ -64,6 +66,21 @@ namespace Appointment.BizLogic.Appointment
         public async Task DeleteAppointmentAsync(int appointmentId)
         {
             await _appointmentRepository.DeleteAppointmentAsync(appointmentId);
+        }
+
+        private (bool, string) ValidateUpdateDeleteStatus(string originalStatus, string newStatus)
+        {
+            if (_invalidUpdateDeleteStatus.Contains(originalStatus))
+            {
+                return (false, "Cannot update Appointment, please check the Appointment status");
+            }
+
+            if(newStatus.Equals("Deleted") && !originalStatus.Equals("Cancelled"))
+            {
+                return (false, "Cannot update Appointment, please check the Appointment status");
+            }
+
+            return (true, "");
         }
     }
 }
