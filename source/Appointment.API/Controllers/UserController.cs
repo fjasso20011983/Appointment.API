@@ -23,6 +23,12 @@ namespace Appointment.API.Controllers
         public async Task<IActionResult> GetUser([FromRoute] Guid userGuid)
         {
             var user = await _userService.GetUserAsync(userGuid);
+
+            if (user == null)
+            {
+                return BadRequest(new { Error = "Invalid userGuid" });
+            }
+
             return Ok(user);
         }
     }

@@ -26,6 +26,13 @@ namespace Appointment.BizLogic.Appointment
             return appointmentDto;
         }
 
+        public async Task<List<AppointmentDTO>> GetAppointmentsAllAsync()
+        {
+            var appointments = await _appointmentRepository.GetAppointmentsAllAsync();
+            var appointmentDtos = _mapper.Map<List<Models.Domain.Appointment>, List<AppointmentDTO>>(appointments);
+            return appointmentDtos;
+        }
+
         public async Task<List<AppointmentDTO>> GetAppointmentsByUserAsync(int userId)
         {
             var appointments = await _appointmentRepository.GetAppointmentsByUserAsync(userId);
@@ -39,11 +46,19 @@ namespace Appointment.BizLogic.Appointment
             await _appointmentRepository.AddAppointmentAsync(appointment);
         }
 
-        public async Task UpdateAppointmentAsync(int appointmentId, AppointmentDTO appointmentDto)
+        public async Task<(bool, string)> UpdateAppointmentAsync(int appointmentId, AppointmentDTO appointmentDto)
         {
-            var oldAppointment = await _appointmentRepository.GetAppointmentAsync(appointmentId); 
+            var oldAppointment = await _appointmentRepository.GetAppointmentAsync(appointmentId);
+            
+            if(oldAppointment == null)
+            {
+                return (false, "Invalid AppointmentId");
+            }
+
             _mapper.Map<AppointmentDTO, Models.Domain.Appointment>(appointmentDto, oldAppointment);
             await _appointmentRepository.UpdateAppointmentAsync(oldAppointment);
+            
+            return (true, "");
         }
 
         public async Task DeleteAppointmentAsync(int appointmentId)

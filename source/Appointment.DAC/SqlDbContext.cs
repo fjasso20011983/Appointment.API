@@ -6,12 +6,21 @@ namespace Appointment.DAC
 {
     public class SqlDbContext : DbContext
     {
+        public SqlDbContext(DbContextOptions<SqlDbContext> options) : base(options)
+        {
+        }
+
         public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Models.Domain.Appointment> Appointments { get; set; }
 
         public virtual DbSet<Models.Domain.AppointmentStatus> AppointmentStatuses { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            if (optionsBuilder.IsConfigured)
+            {
+                return;
+            }
+
             optionsBuilder.UseSqlServer("Server=localhost\\SQLEXPRESS;Initial Catalog=Appointment;Persist Security Info=False;User ID=sa2;Password=12345qwert;MultipleActiveResultSets=False");
         }
 

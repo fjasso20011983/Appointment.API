@@ -24,6 +24,13 @@ namespace Appointment.DAC.Repositories
                 .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
         }
 
+        public async Task<List<Models.Domain.Appointment>> GetAppointmentsAllAsync()
+        {
+            return await _context.Appointments
+                .Include(a => a.AppointmentStatus)
+                .ToListAsync();
+        }
+
         public async Task<List<Models.Domain.Appointment>> GetAppointmentsByUserAsync(int userId)
         {
             return await _context.Appointments

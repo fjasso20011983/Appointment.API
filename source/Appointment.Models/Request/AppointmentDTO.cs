@@ -14,9 +14,6 @@ namespace Appointment.Models.Request
         public DateTime AppointmentDate { get; set; }
         public int AppointmentStatusId { get; set; } 
         public string AppointmentStatusName { get; set; }
-        //public string AppointmentStatus.AppointmentStatusName { get; set; }
-
-        
     }
 
 }

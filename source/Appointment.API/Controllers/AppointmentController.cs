@@ -29,7 +29,21 @@ namespace Appointment.API.Controllers
             var appointment = await _appointmentService.GetAppointmentAsync(appointmentId);
             if (appointment == null)
             {
-                return NotFound();
+                return BadRequest(new { Error = "Invalid AppointmentId" });
+            }
+            return Ok(appointment);
+        }
+
+        [HttpGet]
+        [Route("")]
+        [EnableCors("AllowSpecificOrigins")]
+        public async Task<IActionResult> GetAppointmentAll()
+        {
+            var appointment = await _appointmentService.GetAppointmentsAllAsync();
+            if (appointment == null || appointment.Count==0)
+            {
+                return Ok(new List<AppointmentDTO>());
+                
             }
             return Ok(appointment);
         }
@@ -40,6 +54,10 @@ namespace Appointment.API.Controllers
         public async Task<IActionResult> GetAppointmentsByUser([FromRoute] int userId)
         {
             var appointments = await _appointmentService.GetAppointmentsByUserAsync(userId);
+            if (appointments == null || appointments.Count == 0)
+            {
+                return BadRequest(new { Error = "Invalid UserId" });
+            }
             return Ok(appointments);
         }
 
@@ -49,7 +67,7 @@ namespace Appointment.API.Controllers
         {
             if (appointmentDto == null)
             {
-                return BadRequest();
+                return BadRequest(new { Error = "Invalid Request" });
             }
 
             await _appointmentService.AddAppointmentAsync(appointmentDto);
@@ -63,10 +81,16 @@ namespace Appointment.API.Controllers
         {
             if (appointmentDto == null)
             {
-                return BadRequest();
+                return BadRequest(new { Error = "Invalid request" });
             }
 
-            await _appointmentService.UpdateAppointmentAsync(appointmentId,appointmentDto);
+            var result = await _appointmentService.UpdateAppointmentAsync(appointmentId,appointmentDto);
+
+            if(!result.Item1)
+            {
+                return BadRequest(new { Error = result.Item2 });
+            }
+
             return Ok(appointmentDto);
         }
 
