@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Appointment.BizLogic.Appointment;
 using Appointment.Models.Domain;
@@ -37,27 +39,29 @@ namespace Appointment.API.Controllers
         [HttpGet]
         [Route("")]
         [EnableCors("AllowSpecificOrigins")]
-        public async Task<IActionResult> GetAppointmentAll()
+        public async Task<IActionResult> GetAppointmentAll(string orderBy = "Title")
         {
-            var appointment = await _appointmentService.GetAppointmentsAllAsync();
-            if (appointment == null || appointment.Count==0)
+            var appointments = await _appointmentService.GetAppointmentsAllAsync();
+            if (appointments == null || appointments.Count==0)
             {
                 return Ok(new List<AppointmentDTO>());
                 
             }
-            return Ok(appointment);
+            appointments = OrderAppointments(appointments, orderBy);
+            return Ok(appointments);
         }
 
         [HttpGet]
         [Route("user/{userId}")]
         [EnableCors("AllowSpecificOrigins")]
-        public async Task<IActionResult> GetAppointmentsByUser([FromRoute] int userId)
+        public async Task<IActionResult> GetAppointmentsByUser([FromRoute] int userId, string orderBy = "Title")
         {
             var appointments = await _appointmentService.GetAppointmentsByUserAsync(userId);
             if (appointments == null || appointments.Count == 0)
             {
                 return BadRequest(new { Error = "Invalid UserId" });
             }
+            appointments = OrderAppointments(appointments, orderBy);
             return Ok(appointments);
         }
 
@@ -115,5 +119,17 @@ namespace Appointment.API.Controllers
             }
             return Ok(appointmentStatus);
         }
+
+        private List<AppointmentDTO> OrderAppointments(List<AppointmentDTO> appointments, string orderBy)
+        {
+            var propertyInfo = typeof(AppointmentDTO).GetProperty(orderBy);
+            if (propertyInfo != null)
+            {
+                return appointments.OrderBy(x => propertyInfo.GetValue(x, null)).ToList();
+            }
+
+            return appointments;
+        }
+
     }
 }
